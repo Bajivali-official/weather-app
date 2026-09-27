@@ -2,8 +2,8 @@
 // API CONFIGURATION
 // ========================================
 
-const api = "API_KEY";
 let currentLocation = "vijayawada";
+let isFahrenheit = false;
 
 
 // ========================================
@@ -12,25 +12,36 @@ let currentLocation = "vijayawada";
 
 function fetchWeather(location) {
 
-    fetch(`https://api.weatherapi.com/v1/current.json?key=${api}&q=${location}`)
+    const loading = document.getElementById("loading");
+    loading.style.display = "block";
+
+    fetch(`http://localhost:8080/api/weather?city=${encodeURIComponent(location)}`)
         .then(response => {
             return response.json();
         })
         .then(data => {
 
+            loading.style.display = "none";
+
             // ----------------------------------------
             // Current Weather Details
             // ----------------------------------------
 
-            const temperature = document.getElementById("temperature");
-            temperature.textContent = data.current.temp_c + "°";
+            let temperatureValue;
+
+            if (isFahrenheit) {
+                temperatureValue = data.current.temp_f;
+            } else {
+                temperatureValue = data.current.temp_c;
+            }
+
+            temperature.textContent = Math.round(temperatureValue) + "°";
 
             const condition = document.getElementById("condition");
             condition.textContent = data.current.condition.text;
 
             const locationElement = document.getElementById("location");
             locationElement.textContent = data.location.name;
-
 
             // ----------------------------------------
             // Weather Statistics
@@ -47,7 +58,6 @@ function fetchWeather(location) {
 
             const pressure = document.getElementById("pressure");
             pressure.textContent = data.current.pressure_mb;
-
 
             // ----------------------------------------
             // Today's Highlights
@@ -67,7 +77,6 @@ function fetchWeather(location) {
 
             const visibility = document.getElementById("visibility");
             visibility.textContent = data.current.vis_km + " km";
-
         });
 }
 
@@ -78,6 +87,7 @@ function fetchWeather(location) {
 
 fetchWeather(currentLocation);
 
+
 // ========================================
 // FORECAST
 // ========================================
@@ -85,15 +95,28 @@ fetchWeather(currentLocation);
 function fetchForecast(location) {
 
     const url =
-        `https://api.weatherapi.com/v1/forecast.json?key=${api}&q=${location}&days=7`;
+    `http://localhost:8080/api/forecast?city=${encodeURIComponent(location)}`;
 
     fetch(url)
-        .then(response => response.json())
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error("Forecast data could not be loaded");
+            }
+
+            return response.json();
+        })
         .then(data => {
 
             // ========================================
             // 7-DAY FORECAST
             // ========================================
+
+            const sunrise = document.getElementById("sunrise");
+            const sunset = document.getElementById("sunset");
+
+            sunrise.textContent = data.forecast.forecastday[0].astro.sunrise;
+            sunset.textContent = data.forecast.forecastday[0].astro.sunset;
 
             const forecastCards =
                 document.querySelectorAll(".forecast-day");
@@ -115,21 +138,30 @@ function fetchForecast(location) {
                     dayname = date.toLocaleDateString("en-US", {
                         weekday: "short"
                     });
-
                 }
 
                 card.querySelector(".day-name").textContent =
                     dayname;
 
+                let maxTemp;
+                let minTemp;
+
+                if (isFahrenheit) {
+                    maxTemp = day.day.maxtemp_f;
+                    minTemp = day.day.mintemp_f;
+                } else {
+                    maxTemp = day.day.maxtemp_c;
+                    minTemp = day.day.mintemp_c;
+                }
+
                 card.querySelector(".forecast-temp").textContent =
-                    `${Math.round(day.day.maxtemp_c)}° / ${Math.round(day.day.mintemp_c)}°`;
+                    `${Math.round(maxTemp)}° / ${Math.round(minTemp)}°`;
 
                 card.querySelector(".forecast-condition").textContent =
                     day.day.condition.text;
 
                 card.querySelector(".forecast-icon").innerHTML =
                     `<img src="https:${day.day.condition.icon}" alt="${day.day.condition.text}">`;
-
             });
 
 
@@ -158,7 +190,6 @@ function fetchForecast(location) {
             const startIndex =
                 currentHour;
 
-
             // ----------------------------------------
             // Display Next 6 Hours
             // ----------------------------------------
@@ -169,7 +200,6 @@ function fetchForecast(location) {
 
                     const card = hourCards[index];
 
-
                     // Weather Icon
 
                     const hourIcon =
@@ -178,15 +208,21 @@ function fetchForecast(location) {
                     hourIcon.innerHTML =
                         `<img src="https:${hour.condition.icon}" alt="${hour.condition.text}">`;
 
-
                     // Temperature
 
                     const hourTemp =
                         card.querySelector(".hour-temp");
 
-                    hourTemp.textContent =
-                        Math.round(hour.temp_c) + "°";
+                    let hourTemperature;
 
+                    if (isFahrenheit) {
+                        hourTemperature = hour.temp_f;
+                    } else {
+                        hourTemperature = hour.temp_c;
+                    }
+
+                    hourTemp.textContent =
+                        Math.round(hourTemperature) + "°";
 
                     // Time
 
@@ -201,11 +237,14 @@ function fetchForecast(location) {
                             hour: "numeric",
                             hour12: true
                         });
-
                 });
 
-        });
+        })
+        .catch(error => {
 
+            console.error(error);
+
+        });
 }
 
 fetchForecast(currentLocation);
@@ -215,33 +254,46 @@ fetchForecast(currentLocation);
 // WEATHER MAP
 // ========================================
 
-const map = L.map("weather-map").setView([16.5062, 80.6480], 10);
+const map =
+    L.map("weather-map").setView([16.5062, 80.6480], 10);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
 
-const marker = L.marker([16.5062, 80.6480]).addTo(map);
+const marker =
+    L.marker([16.5062, 80.6480]).addTo(map);
 
 
 // ========================================
 // LOCATION SEARCH
 // ========================================
 
-const searchInput = document.getElementById("search-input");
+const searchInput =
+    document.getElementById("search-input");
 
 searchInput.addEventListener("keydown", function(event) {
 
     if (event.key === "Enter") {
 
-        const location = searchInput.value.trim();
+        searchInput.placeholder = "Search city";
+
+        const location =
+            searchInput.value.trim();
 
         if (location === "") {
             return;
         }
 
-        fetch(`https://api.weatherapi.com/v1/search.json?key=${api}&q=${location}`)
-            .then(response => response.json())
+        fetch(`http://localhost:8080/api/search?city=${encodeURIComponent(location)}`)
+            .then(response => {
+
+                if (!response.ok) {
+                    throw new Error("Weather data could not be loaded");
+                }
+
+                return response.json();
+            })
             .then(data => {
 
                 if (data.length === 0) {
@@ -253,28 +305,173 @@ searchInput.addEventListener("keydown", function(event) {
                 const longitude = data[0].lon;
 
                 currentLocation = data[0].name;
-
+                searchInput.value = "";
 
                 // Move map
 
                 map.setView([latitude, longitude], 10);
 
-
                 // Move marker
 
                 marker.setLatLng([latitude, longitude]);
-
 
                 // Update weather
 
                 fetchWeather(currentLocation);
                 fetchForecast(currentLocation);
-
             })
-            .catch(error =>{
-                alert("something went wrong");
-            })
+            .catch(error => {
 
+                searchInput.placeholder = "Search city...";
+
+                console.error(error);
+
+                alert("Unable to load weather data.");
+
+            });
     }
+});
 
+
+// ========================================
+// POPULAR CITIES
+// ========================================
+
+const cityItems =
+    document.querySelectorAll(".city-item");
+
+cityItems.forEach(item => {
+
+    item.addEventListener("click", function() {
+
+        const city =
+            item.dataset.city;
+
+        currentLocation = city;
+
+        // Remove active class from all cities
+
+        cityItems.forEach(cityItem => {
+            cityItem.classList.remove("active-city");
+        });
+
+        // Add active class to clicked city
+
+        item.classList.add("active-city");
+
+        fetch(`http://localhost:8080/api/search?city=${encodeURIComponent(city + ",India")}`)
+            .then(response => response.json())
+            .then(data => {
+
+                const latitude = data[0].lat;
+                const longitude = data[0].lon;
+
+                // Move map
+
+                map.setView([latitude, longitude], 10);
+
+                // Move marker
+
+                marker.setLatLng([latitude, longitude]);
+
+                // Update weather
+
+                fetchWeather(currentLocation);
+                fetchForecast(currentLocation);
+            });
+    });
+});
+
+
+// ========================================
+// POPULAR CITIES WEATHER
+// ========================================
+
+function fetchPopularCitiesWeather() {
+
+    cityItems.forEach(item => {
+
+        const city =
+            item.dataset.city;
+
+        fetch(`http://localhost:8080/api/weather?city=${encodeURIComponent(city + ", India")}`)
+            .then(response => response.json())
+            .then(data => {
+
+                const temperature =
+                    item.querySelector(".city-temperature");
+
+                const condition =
+                    item.querySelector(".city-condition");
+
+                let cityTemperature;
+
+                if (isFahrenheit) {
+                    cityTemperature = data.current.temp_f;
+                } else {
+                    cityTemperature = data.current.temp_c;
+                }
+
+                temperature.textContent =
+                    Math.round(cityTemperature) + "°";
+
+                condition.textContent =
+                    data.current.condition.text;
+            });
+    });
+}
+
+fetchPopularCitiesWeather();
+
+
+// ========================================
+// CURRENT DATE
+// ========================================
+
+const dateElement =
+    document.getElementById("weather-date");
+
+const today =
+    new Date();
+
+dateElement.textContent =
+    today.toLocaleDateString("en-US", {
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+    });
+
+
+// ========================================
+// TEMPERATURE UNIT
+// ========================================
+
+const unitToggle =
+    document.getElementById("unit-toggle");
+
+unitToggle.addEventListener("click", function() {
+
+    isFahrenheit = !isFahrenheit;
+
+    unitToggle.classList.toggle("active");
+
+    fetchWeather(currentLocation);
+    fetchForecast(currentLocation);
+    fetchPopularCitiesWeather();
+});
+
+
+// ========================================
+// DASHBOARD NAVIGATION
+// ========================================
+
+const dashboardNav =
+    document.getElementById("dashboard-nav");
+
+dashboardNav.addEventListener("click", function() {
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 });
