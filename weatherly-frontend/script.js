@@ -301,8 +301,8 @@ searchInput.addEventListener("keydown", function(event) {
                     return;
                 }
 
-                const latitude = data.location.lat;
-                const longitude = data.location.lon;
+                const latitude = data[0].lat;
+                const longitude = data[0].lon;
 
                 currentLocation = data[0].name;
                 searchInput.value = "";
