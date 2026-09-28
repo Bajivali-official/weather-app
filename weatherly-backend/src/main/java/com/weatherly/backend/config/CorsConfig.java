@@ -22,7 +22,8 @@ public class CorsConfig {
                                 "http://127.0.0.1:5500",
                                 "http://localhost:5173",
                                 "http://127.0.0.1:5173",
-                                "http://localhost:63342"
+                                "http://localhost:63342",
+                                "https://weatherly-frontend-s0kh.onrender.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*");
