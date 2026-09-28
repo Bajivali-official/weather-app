@@ -1,7 +1,7 @@
 // ========================================
 // API CONFIGURATION
 // ========================================
-
+const API_BASE_URL = "https://weatherly-backend-4y84.onrender.com";
 let currentLocation = "vijayawada";
 let isFahrenheit = false;
 
@@ -15,7 +15,7 @@ function fetchWeather(location) {
     const loading = document.getElementById("loading");
     loading.style.display = "block";
 
-    fetch(`http://localhost:8080/api/weather?city=${encodeURIComponent(location)}`)
+    fetch(`${API_BASE_URL}/api/weather?city=${encodeURIComponent(location)}`)
         .then(response => {
             return response.json();
         })
@@ -95,7 +95,7 @@ fetchWeather(currentLocation);
 function fetchForecast(location) {
 
     const url =
-    `http://localhost:8080/api/forecast?city=${encodeURIComponent(location)}`;
+        `${API_BASE_URL}/api/weather?city=${encodeURIComponent(location)}`;
 
     fetch(url)
         .then(response => {
@@ -285,7 +285,7 @@ searchInput.addEventListener("keydown", function(event) {
             return;
         }
 
-        fetch(`http://localhost:8080/api/search?city=${encodeURIComponent(location)}`)
+        fetch(`${API_BASE_URL}/api/weather?city=${encodeURIComponent(location)}`)
             .then(response => {
 
                 if (!response.ok) {
@@ -359,7 +359,7 @@ cityItems.forEach(item => {
 
         item.classList.add("active-city");
 
-        fetch(`http://localhost:8080/api/search?city=${encodeURIComponent(city + ",India")}`)
+        fetch(`${API_BASE_URL}/api/weather?city=${encodeURIComponent(city + ", India")}`)
             .then(response => response.json())
             .then(data => {
 
@@ -394,7 +394,7 @@ function fetchPopularCitiesWeather() {
         const city =
             item.dataset.city;
 
-        fetch(`http://localhost:8080/api/weather?city=${encodeURIComponent(city + ", India")}`)
+        fetch(`${API_BASE_URL}/api/weather?city=${encodeURIComponent(city + ", India")}`)
             .then(response => response.json())
             .then(data => {
 
