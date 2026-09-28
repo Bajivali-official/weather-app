@@ -95,7 +95,7 @@ fetchWeather(currentLocation);
 function fetchForecast(location) {
 
     const url =
-        `${API_BASE_URL}/api/weather?city=${encodeURIComponent(location)}`;
+        `${API_BASE_URL}/api/forecast?city=${encodeURIComponent(location)}`;
 
     fetch(url)
         .then(response => {
@@ -285,7 +285,7 @@ searchInput.addEventListener("keydown", function(event) {
             return;
         }
 
-        fetch(`${API_BASE_URL}/api/weather?city=${encodeURIComponent(location)}`)
+        fetch(`${API_BASE_URL}/api/search?city=${encodeURIComponent(location)}`)
             .then(response => {
 
                 if (!response.ok) {
@@ -301,8 +301,8 @@ searchInput.addEventListener("keydown", function(event) {
                     return;
                 }
 
-                const latitude = data[0].lat;
-                const longitude = data[0].lon;
+                const latitude = data.location.lat;
+                const longitude = data.location.lon;
 
                 currentLocation = data[0].name;
                 searchInput.value = "";
