@@ -1,6 +1,4 @@
-# Weatherly<img width="1902" height="969" alt="Screenshot 2026-10-05 230615" src="https://github.com/user-attachments/assets/18169a46-b7f2-45fe-b101-f230d83a3d6d" />
-<img width="1899" height="968" alt="Screenshot 2026-10-05 230525" src="https://github.com/user-attachments/assets/a735562d-8eb0-4b5a-a59e-63d6679721d1" />
-
+# Weatherly
 
 **Weatherly** is a full-stack weather dashboard that provides real-time weather conditions, hourly forecasts, 7-day forecasts, location search, and interactive map-based visualization.
 
@@ -185,4 +183,5 @@ This project is developed for educational and portfolio purposes.
 
 **Bajivali**
 
-Computer Science Student | Aspiring Software Engineer
+Computer Science Student | Aspiring Software Engineer<img width="1902" height="969" alt="Screenshot 2026-10-05 230615" src="https://github.com/user-attachments/assets/3fa24c29-a64b-4c30-b186-948962b96392" />
+<img width="1899" height="968" alt="Screenshot 2026-10-05 230525" src="https://github.com/user-attachments/assets/a5ad7784-0f14-4508-8d81-77ba70dbcf98" />
