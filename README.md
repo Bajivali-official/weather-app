@@ -184,6 +184,9 @@ This project is developed for educational and portfolio purposes.
 **Bajivali**
 
 Computer Science Student | Aspiring Software Engineer
+
+Glassmorphism-based interface
+
 <img width="1899" height="968" alt="Screenshot 2026-10-05 230525" src="https://github.com/user-attachments/assets/6a7882cb-0414-4a7b-a08f-ab60f2392d43" />
 <img width="1902" height="969" alt="Screenshot 2026-10-05 230615" src="https://github.com/user-attachments/assets/e5956337-800b-4d80-bdad-85bac48aa166" />
 
